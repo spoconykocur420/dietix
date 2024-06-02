@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charts</title>
+   
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <a href="index_wszystko.php">main page</a>
+    <div class="container">
+        <h1>Charts</h1>
+        <h2>Calories Consumption</h2>
+        <canvas id="mealChart"></canvas>
+        <h2>Weight Tracking</h2>
+        <canvas id="weightChart"></canvas>
+        <h2>Recipe Nutrient Distribution</h2>
+        <canvas id="recipeChart"></canvas>
+    </div>
+
+    <script>
+        async function fetchData(url) {
+            const response = await fetch(url);
+            const data = await response.json();
+            return data;
+        }
+
+        async function createMealChart() {
+            const mealData = await fetchData('track_meal_data.php');
+            const ctx = document.getElementById('mealChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: mealData.labels,
+                    datasets: [{
+                        label: 'Calories Consumed',
+                        data: mealData.data,
+                        backgroundColor: 'rgba(0, 128, 0, 0.2)',
+                        borderColor: 'rgba(0, 128, 0, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        async function createWeightChart() {
+            const weightData = await fetchData('track_metrics_data.php');
+            const ctx = document.getElementById('weightChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: weightData.labels,
+                    datasets: [{
+                        label: 'Weight (kg)',
+                        data: weightData.weights,
+                        backgroundColor: 'rgba(0, 128, 0, 0.2)',
+                        borderColor: 'rgba(0, 128, 0, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+        }
+
+        async function createRecipeChart() {
+            const recipeData = await fetchData('add_recipe_data.php');
+            const ctx = document.getElementById('recipeChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: recipeData.labels,
+                    datasets: [{
+                        label: 'Nutrient Distribution',
+                        data: [recipeData.protein.reduce((a, b) => a + b, 0), recipeData.carbs.reduce((a, b) => a + b, 0), recipeData.fats.reduce((a, b) => a + b, 0)],
+                        backgroundColor: [
+                            'rgba(0, 128, 0, 0.2)',
+                            'rgba(128, 0, 0, 0.2)',
+                            'rgba(0, 0, 128, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(0, 128, 0, 1)',
+                            'rgba(128, 0, 0, 1)',
+                            'rgba(0, 0, 128, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                }
+            });
+        }
+
+        createMealChart();
+        createWeightChart();
+        createRecipeChart();
+    </script>
+</body>
+</html>
